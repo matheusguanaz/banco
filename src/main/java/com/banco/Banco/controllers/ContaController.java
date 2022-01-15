@@ -10,6 +10,7 @@ import com.banco.Banco.services.ContaService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -56,7 +57,7 @@ public class ContaController {
     }
 
     @PatchMapping("/transferir/{idOrigem}")
-    public MessageResponseDTO transferir(@PathVariable Long idOrigem, @RequestBody TransferirRequest transferirRequest) throws Exception {
+    public ResponseEntity<MessageResponseDTO> transferir(@PathVariable Long idOrigem, @RequestBody TransferirRequest transferirRequest) throws Exception {
         return contaService.transferir(idOrigem, transferirRequest);
     }
 }

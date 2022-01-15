@@ -10,6 +10,8 @@ import com.banco.Banco.exceptions.ContaNotFoundException;
 import com.banco.Banco.repositories.ContaRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -91,12 +93,16 @@ public class ContaService {
         return contaRepository.findById(id).orElseThrow(() -> new ContaNotFoundException(id));
     }
 
-    public MessageResponseDTO transferir(Long idOrigem, TransferirRequest transferirRequest) throws Exception {
+    public ResponseEntity<MessageResponseDTO> transferir(Long idOrigem, TransferirRequest transferirRequest) throws Exception {
         Conta contaOrigem = verifyIfContaExists(idOrigem);
         Conta contaDestino = verifyIfContaExists(transferirRequest.getIdDestino());
 
         if(transferirRequest.getValor() > contaOrigem.getSaldo())
-            throw new Exception("Operação não autorizada");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(MessageResponseDTO.builder()
+                        .message("Saldo Insuficiente")
+                        .build());
+
 
         contaOrigem.setSaldo(contaOrigem.getSaldo() - transferirRequest.getValor());
         contaDestino.setSaldo(contaDestino.getSaldo() + transferirRequest.getValor());
@@ -104,8 +110,8 @@ public class ContaService {
         contaRepository.save(contaDestino);
         contaRepository.save(contaOrigem);
 
-        return MessageResponseDTO.builder()
+        return ResponseEntity.ok(MessageResponseDTO.builder()
                 .message("Transferencia feita com sucesso")
-                .build();
+                .build());
     }
 }
