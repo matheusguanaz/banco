@@ -1,6 +1,7 @@
 package com.banco.Banco.services;
 
 import com.banco.Banco.dtos.requests.ContaDTO;
+import com.banco.Banco.dtos.requests.DepositoRequest;
 import com.banco.Banco.dtos.responses.ContaResponse;
 import com.banco.Banco.dtos.responses.MessageResponseDTO;
 import com.banco.Banco.entities.Conta;
@@ -60,6 +61,22 @@ public class ContaService {
                 .build();
     }
 
+    public void deleteConta(Long id) throws ContaNotFoundException {
+        Conta conta = verifyIfContaExists(id);
+        contaRepository.delete(conta);
+    }
+
+    public MessageResponseDTO depositar(Long id, DepositoRequest depositoRequest) throws ContaNotFoundException {
+        Conta conta = verifyIfContaExists(id);
+        conta.setSaldo(conta.getSaldo() + depositoRequest.getValor());
+
+        contaRepository.save(conta);
+
+        return MessageResponseDTO.builder()
+                .message("Depósito realizado com sucesso")
+                .build();
+    }
+
     private ContaResponse convertContaToContaResponse(Conta conta) {
         return ContaResponse.builder()
                 .contaId(conta.getContaId())
@@ -71,10 +88,5 @@ public class ContaService {
 
     private Conta verifyIfContaExists(Long id) throws ContaNotFoundException {
         return contaRepository.findById(id).orElseThrow(() -> new ContaNotFoundException(id));
-    }
-
-    public void deleteConta(Long id) throws ContaNotFoundException {
-        Conta conta = verifyIfContaExists(id);
-        contaRepository.delete(conta);
     }
 }
