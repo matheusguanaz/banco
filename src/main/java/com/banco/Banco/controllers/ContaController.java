@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/conta")
 @AllArgsConstructor(onConstructor = @__(@Autowired))
@@ -27,5 +29,10 @@ public class ContaController {
     @GetMapping("/{id}")
     public ContaResponse getOneConta(@PathVariable Long id) throws ContaNotFoundException {
         return  contaService.getOneConta(id);
+    }
+
+    @GetMapping
+    public List<ContaResponse> getAllContas(){
+        return contaService.getAllContas();
     }
 }

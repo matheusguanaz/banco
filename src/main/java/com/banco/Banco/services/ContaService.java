@@ -10,6 +10,9 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class ContaService {
@@ -33,6 +36,15 @@ public class ContaService {
         Conta conta = verifyIfContaExists(id);
 
         return convertContaToContaResponse(conta);
+    }
+
+    public List<ContaResponse> getAllContas() {
+        List<ContaResponse> contaResponseList = new ArrayList<>();
+        List<Conta> contas = contaRepository.findAll();
+
+        contas.forEach(conta -> contaResponseList.add(convertContaToContaResponse(conta)));
+
+        return contaResponseList;
     }
 
     private ContaResponse convertContaToContaResponse(Conta conta) {
