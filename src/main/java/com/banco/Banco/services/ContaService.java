@@ -47,6 +47,19 @@ public class ContaService {
         return contaResponseList;
     }
 
+    public MessageResponseDTO updateConta(Long id, ContaDTO contaDTO) throws ContaNotFoundException {
+        Conta conta = verifyIfContaExists(id);
+
+        conta.setNome(contaDTO.getNome());
+        conta.setCpf(contaDTO.getCpf());
+
+        contaRepository.save(conta);
+
+        return MessageResponseDTO.builder()
+                .message("Alterado com sucesso")
+                .build();
+    }
+
     private ContaResponse convertContaToContaResponse(Conta conta) {
         return ContaResponse.builder()
                 .contaId(conta.getContaId())

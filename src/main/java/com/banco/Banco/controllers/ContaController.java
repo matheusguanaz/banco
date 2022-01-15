@@ -35,4 +35,9 @@ public class ContaController {
     public List<ContaResponse> getAllContas(){
         return contaService.getAllContas();
     }
+
+    @PutMapping("/{id}")
+    public MessageResponseDTO updateConta(@PathVariable Long id, @RequestBody ContaDTO contaDTO) throws ContaNotFoundException {
+        return contaService.updateConta(id, contaDTO);
+    }
 }
