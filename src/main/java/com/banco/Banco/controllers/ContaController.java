@@ -2,6 +2,7 @@ package com.banco.Banco.controllers;
 
 import com.banco.Banco.dtos.requests.ContaDTO;
 import com.banco.Banco.dtos.requests.DepositoRequest;
+import com.banco.Banco.dtos.requests.TransferirRequest;
 import com.banco.Banco.dtos.responses.ContaResponse;
 import com.banco.Banco.dtos.responses.MessageResponseDTO;
 import com.banco.Banco.exceptions.ContaNotFoundException;
@@ -52,5 +53,10 @@ public class ContaController {
     @PatchMapping("/depositar/{id}")
     public MessageResponseDTO depositar(@PathVariable Long id, @RequestBody @Valid DepositoRequest depositoRequest) throws ContaNotFoundException {
         return contaService.depositar(id, depositoRequest);
+    }
+
+    @PatchMapping("/transferir/{idOrigem}")
+    public MessageResponseDTO transferir(@PathVariable Long idOrigem, @RequestBody TransferirRequest transferirRequest) throws Exception {
+        return contaService.transferir(idOrigem, transferirRequest);
     }
 }

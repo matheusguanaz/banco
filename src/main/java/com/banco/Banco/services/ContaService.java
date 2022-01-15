@@ -2,6 +2,7 @@ package com.banco.Banco.services;
 
 import com.banco.Banco.dtos.requests.ContaDTO;
 import com.banco.Banco.dtos.requests.DepositoRequest;
+import com.banco.Banco.dtos.requests.TransferirRequest;
 import com.banco.Banco.dtos.responses.ContaResponse;
 import com.banco.Banco.dtos.responses.MessageResponseDTO;
 import com.banco.Banco.entities.Conta;
@@ -88,5 +89,23 @@ public class ContaService {
 
     private Conta verifyIfContaExists(Long id) throws ContaNotFoundException {
         return contaRepository.findById(id).orElseThrow(() -> new ContaNotFoundException(id));
+    }
+
+    public MessageResponseDTO transferir(Long idOrigem, TransferirRequest transferirRequest) throws Exception {
+        Conta contaOrigem = verifyIfContaExists(idOrigem);
+        Conta contaDestino = verifyIfContaExists(transferirRequest.getIdDestino());
+
+        if(transferirRequest.getValor() > contaOrigem.getSaldo())
+            throw new Exception("Operação não autorizada");
+
+        contaOrigem.setSaldo(contaOrigem.getSaldo() - transferirRequest.getValor());
+        contaDestino.setSaldo(contaDestino.getSaldo() + transferirRequest.getValor());
+
+        contaRepository.save(contaDestino);
+        contaRepository.save(contaOrigem);
+
+        return MessageResponseDTO.builder()
+                .message("Transferencia feita com sucesso")
+                .build();
     }
 }
