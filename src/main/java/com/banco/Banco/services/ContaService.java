@@ -72,4 +72,9 @@ public class ContaService {
     private Conta verifyIfContaExists(Long id) throws ContaNotFoundException {
         return contaRepository.findById(id).orElseThrow(() -> new ContaNotFoundException(id));
     }
+
+    public void deleteConta(Long id) throws ContaNotFoundException {
+        Conta conta = verifyIfContaExists(id);
+        contaRepository.delete(conta);
+    }
 }

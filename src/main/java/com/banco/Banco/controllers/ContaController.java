@@ -40,4 +40,10 @@ public class ContaController {
     public MessageResponseDTO updateConta(@PathVariable Long id, @RequestBody ContaDTO contaDTO) throws ContaNotFoundException {
         return contaService.updateConta(id, contaDTO);
     }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteConta(@PathVariable Long id) throws ContaNotFoundException {
+        contaService.deleteConta(id);
+    }
 }
