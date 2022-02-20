@@ -27,6 +27,10 @@ public class ContaController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public MessageResponseDTO createConta(@RequestBody @Valid ContaDTO contaDTO){
+        if(contaDTO.getCpf().contains("."))
+            contaDTO.setCpf(contaDTO.getCpf()
+                    .replace(".","")
+                    .replace("-",""));
         return contaService.createConta(contaDTO);
     }
 
@@ -57,7 +61,7 @@ public class ContaController {
     }
 
     @PatchMapping("/transferir/{idOrigem}")
-    public ResponseEntity<MessageResponseDTO> transferir(@PathVariable Long idOrigem, @RequestBody TransferirRequest transferirRequest) throws Exception {
+    public ResponseEntity<MessageResponseDTO> transferir(@PathVariable Long idOrigem, @RequestBody @Valid TransferirRequest transferirRequest) throws Exception {
         return contaService.transferir(idOrigem, transferirRequest);
     }
 }
