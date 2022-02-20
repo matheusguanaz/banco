@@ -2,7 +2,7 @@
 
 É necessário possuir o maven e o java 11 instalados na máquina.
 
-Basta utilizar o comando **mvn springboot:run** na raiz do projeto.
+Basta utilizar o comando **mvn spring-boot:run** na raiz do projeto.
 
 ## End points da aplicação
 
