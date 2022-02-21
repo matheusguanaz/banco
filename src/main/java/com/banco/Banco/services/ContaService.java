@@ -23,7 +23,7 @@ public class ContaService {
 
     private ContaRepository contaRepository;
 
-    public MessageResponseDTO createConta(ContaDTO contaDTO) {
+    public ResponseEntity<MessageResponseDTO> createConta(ContaDTO contaDTO) {
         Conta conta = new Conta();
         conta.setCpf(contaDTO.getCpf());
         conta.setNome(contaDTO.getNome());
@@ -31,27 +31,27 @@ public class ContaService {
 
         contaRepository.save(conta);
 
-        return MessageResponseDTO.builder()
+        return ResponseEntity.ok(MessageResponseDTO.builder()
                 .message("Conta criada com sucesso")
-                .build();
+                .build());
     }
 
-    public ContaResponse getOneConta(Long id) throws ContaNotFoundException {
+    public ResponseEntity<ContaResponse> getOneConta(Long id) throws ContaNotFoundException {
         Conta conta = verifyIfContaExists(id);
 
-        return convertContaToContaResponse(conta);
+        return ResponseEntity.ok(convertContaToContaResponse(conta));
     }
 
-    public List<ContaResponse> getAllContas() {
+    public ResponseEntity<List<ContaResponse>> getAllContas() {
         List<ContaResponse> contaResponseList = new ArrayList<>();
         List<Conta> contas = contaRepository.findAll();
 
         contas.forEach(conta -> contaResponseList.add(convertContaToContaResponse(conta)));
 
-        return contaResponseList;
+        return ResponseEntity.ok(contaResponseList);
     }
 
-    public MessageResponseDTO updateConta(Long id, ContaDTO contaDTO) throws ContaNotFoundException {
+    public ResponseEntity<MessageResponseDTO> updateConta(Long id, ContaDTO contaDTO) throws ContaNotFoundException {
         Conta conta = verifyIfContaExists(id);
 
         conta.setNome(contaDTO.getNome());
@@ -59,9 +59,9 @@ public class ContaService {
 
         contaRepository.save(conta);
 
-        return MessageResponseDTO.builder()
+        return ResponseEntity.ok(MessageResponseDTO.builder()
                 .message("Alterado com sucesso")
-                .build();
+                .build());
     }
 
     public void deleteConta(Long id) throws ContaNotFoundException {
@@ -69,15 +69,37 @@ public class ContaService {
         contaRepository.delete(conta);
     }
 
-    public MessageResponseDTO depositar(Long id, DepositoRequest depositoRequest) throws ContaNotFoundException {
+    public ResponseEntity<MessageResponseDTO> depositar(Long id, DepositoRequest depositoRequest) throws ContaNotFoundException {
         Conta conta = verifyIfContaExists(id);
         conta.setSaldo(conta.getSaldo() + depositoRequest.getValor());
 
         contaRepository.save(conta);
 
-        return MessageResponseDTO.builder()
+        return ResponseEntity.ok(MessageResponseDTO.builder()
                 .message("Depósito realizado com sucesso")
-                .build();
+                .build());
+    }
+
+    public ResponseEntity<MessageResponseDTO> transferir(Long idOrigem, TransferirRequest transferirRequest) throws Exception {
+        Conta contaOrigem = verifyIfContaExists(idOrigem);
+        Conta contaDestino = verifyIfContaExists(transferirRequest.getIdDestino());
+
+        if(transferirRequest.getValor() > contaOrigem.getSaldo())
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(MessageResponseDTO.builder()
+                            .message("Saldo Insuficiente")
+                            .build());
+
+
+        contaOrigem.setSaldo(contaOrigem.getSaldo() - transferirRequest.getValor());
+        contaDestino.setSaldo(contaDestino.getSaldo() + transferirRequest.getValor());
+
+        contaRepository.save(contaDestino);
+        contaRepository.save(contaOrigem);
+
+        return ResponseEntity.ok(MessageResponseDTO.builder()
+                .message("Transferencia feita com sucesso")
+                .build());
     }
 
     private ContaResponse convertContaToContaResponse(Conta conta) {
@@ -91,27 +113,5 @@ public class ContaService {
 
     private Conta verifyIfContaExists(Long id) throws ContaNotFoundException {
         return contaRepository.findById(id).orElseThrow(() -> new ContaNotFoundException(id));
-    }
-
-    public ResponseEntity<MessageResponseDTO> transferir(Long idOrigem, TransferirRequest transferirRequest) throws Exception {
-        Conta contaOrigem = verifyIfContaExists(idOrigem);
-        Conta contaDestino = verifyIfContaExists(transferirRequest.getIdDestino());
-
-        if(transferirRequest.getValor() > contaOrigem.getSaldo())
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(MessageResponseDTO.builder()
-                        .message("Saldo Insuficiente")
-                        .build());
-
-
-        contaOrigem.setSaldo(contaOrigem.getSaldo() - transferirRequest.getValor());
-        contaDestino.setSaldo(contaDestino.getSaldo() + transferirRequest.getValor());
-
-        contaRepository.save(contaDestino);
-        contaRepository.save(contaOrigem);
-
-        return ResponseEntity.ok(MessageResponseDTO.builder()
-                .message("Transferencia feita com sucesso")
-                .build());
     }
 }

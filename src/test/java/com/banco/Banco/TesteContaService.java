@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -35,8 +36,12 @@ public class TesteContaService {
         ContaService contaService = new ContaService(contaRepository);
 
         ContaDTO contaDTO = new ContaDTO("teste", "86113283020");
-        MessageResponseDTO result = contaService.createConta(contaDTO);
-        MessageResponseDTO resultExpected = new MessageResponseDTO("Conta criada com sucesso") ;
+        ResponseEntity<MessageResponseDTO> result = contaService.createConta(contaDTO);
+        ResponseEntity<MessageResponseDTO> resultExpected = ResponseEntity
+                .ok(MessageResponseDTO.builder()
+                        .message("Conta criada com sucesso")
+                        .build());
+
         assertEquals(resultExpected, result);
     }
 
@@ -45,10 +50,16 @@ public class TesteContaService {
         ContaService contaService = new ContaService(contaRepository);
 
         ContaDTO contaDTO = new ContaDTO("teste", "86113283020");
-        MessageResponseDTO contaCriada = contaService.createConta(contaDTO);
+        ResponseEntity<MessageResponseDTO> contaCriada = contaService.createConta(contaDTO);
 
-        ContaResponse resultExpected = new ContaResponse(1L, "teste", "86113283020", 0.0);
-        ContaResponse result = contaService.getOneConta(1L);
+        ResponseEntity<ContaResponse> resultExpected = ResponseEntity.ok(
+                ContaResponse.builder()
+                        .contaId(1L)
+                        .nome("teste")
+                        .cpf("86113283020")
+                        .saldo(0.0).build());
+
+        ResponseEntity<ContaResponse> result = contaService.getOneConta(1L);
 
         assertEquals(resultExpected, result);
     }
@@ -58,12 +69,20 @@ public class TesteContaService {
         ContaService contaService = new ContaService(contaRepository);
 
         ContaDTO contaDTO = new ContaDTO("teste", "86113283020");
-        MessageResponseDTO contaCriada = contaService.createConta(contaDTO);
+        contaService.createConta(contaDTO);
 
-        List<ContaResponse> resultExpected = new ArrayList<>();
-        ContaResponse contaResponse = new ContaResponse(1L, "teste", "86113283020", 0.0);
-        resultExpected.add(contaResponse);
-        List<ContaResponse> result = contaService.getAllContas();
+        List<ContaResponse> contaResponseList = new ArrayList<>(
+                Arrays.asList(
+                        new ContaResponse(
+                                1L,
+                                "teste",
+                                "86113283020",
+                                0.0
+                        )
+                ));
+
+        ResponseEntity<List<ContaResponse>> resultExpected = ResponseEntity.ok(contaResponseList);
+        ResponseEntity<List<ContaResponse>> result = contaService.getAllContas();
 
         assertEquals(resultExpected, result);
 
@@ -73,12 +92,16 @@ public class TesteContaService {
     public void deveRetornarMensagemDeSucesso_QuandoEditarConta() throws ContaNotFoundException {
         ContaService contaService = new ContaService(contaRepository);
 
-        ContaDTO contaDTO = new ContaDTO("teste", "86113283020");
-        MessageResponseDTO contaCriada = contaService.createConta(contaDTO);
+        contaService.createConta(new ContaDTO("teste", "86113283020"));
 
         ContaDTO contaEditada = new ContaDTO("novo teste", "86113283020");
-        MessageResponseDTO resultExpected = new MessageResponseDTO("Alterado com sucesso") ;
-        MessageResponseDTO result = contaService.updateConta(1L,contaEditada);
+        ResponseEntity<MessageResponseDTO> resultExpected = ResponseEntity.ok(
+                MessageResponseDTO
+                        .builder()
+                        .message("Alterado com sucesso")
+                        .build()
+        );
+        ResponseEntity<MessageResponseDTO> result = contaService.updateConta(1L,contaEditada);
 
         assertEquals(resultExpected, result);
     }
@@ -87,11 +110,15 @@ public class TesteContaService {
     public void deveRetornarMensagemDeSucesso_QuandoFizerDeposito() throws ContaNotFoundException {
         ContaService contaService = new ContaService(contaRepository);
 
-        ContaDTO contaDTO = new ContaDTO("teste", "86113283020");
-        MessageResponseDTO contaCriada = contaService.createConta(contaDTO);
+        contaService.createConta(new ContaDTO("teste", "86113283020"));
 
-        MessageResponseDTO resultExpected = new MessageResponseDTO("Depósito realizado com sucesso");
-        MessageResponseDTO result = contaService.depositar(1L, new DepositoRequest(200.0));
+        ResponseEntity<MessageResponseDTO> resultExpected = ResponseEntity.ok(
+                MessageResponseDTO
+                        .builder()
+                        .message("Depósito realizado com sucesso")
+                        .build()
+        );
+        ResponseEntity<MessageResponseDTO> result = contaService.depositar(1L, new DepositoRequest(200.0));
 
         assertEquals(resultExpected, result);
     }
@@ -100,15 +127,15 @@ public class TesteContaService {
     public void deveRetornarMensagemDeSucesso_QuandoFizerTransferencia() throws Exception {
         ContaService contaService = new ContaService(contaRepository);
 
-        ContaDTO contaDTO = new ContaDTO("teste", "86113283020");
-        ContaDTO contaDTO_1 = new ContaDTO("teste2", "56925669070");
-        MessageResponseDTO contaCriada = contaService.createConta(contaDTO);
-        MessageResponseDTO contaCriada_1 = contaService.createConta(contaDTO_1);
+        contaService.createConta(new ContaDTO("teste", "86113283020"));
+        contaService.createConta(new ContaDTO("teste2", "56925669070"));
 
-        MessageResponseDTO depositar = contaService.depositar(1L, new DepositoRequest(200.0));
-        ResponseEntity<MessageResponseDTO> resultExpected = ResponseEntity.ok(MessageResponseDTO.builder()
+        ResponseEntity<MessageResponseDTO> depositar = contaService.depositar(1L, new DepositoRequest(200.0));
+        ResponseEntity<MessageResponseDTO> resultExpected = ResponseEntity.ok(
+                MessageResponseDTO.builder()
                 .message("Transferencia feita com sucesso")
-                .build());
+                .build()
+        );
         ResponseEntity<MessageResponseDTO> result = contaService.transferir(1L, new TransferirRequest(2L, 200.0));
 
         assertEquals(resultExpected, result);

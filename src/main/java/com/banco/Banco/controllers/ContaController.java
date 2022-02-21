@@ -26,7 +26,7 @@ public class ContaController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public MessageResponseDTO createConta(@RequestBody @Valid ContaDTO contaDTO){
+    public ResponseEntity<MessageResponseDTO> createConta(@RequestBody @Valid ContaDTO contaDTO){
         if(contaDTO.getCpf().contains("."))
             contaDTO.setCpf(contaDTO.getCpf()
                     .replace(".","")
@@ -35,17 +35,17 @@ public class ContaController {
     }
 
     @GetMapping("/{id}")
-    public ContaResponse getOneConta(@PathVariable Long id) throws ContaNotFoundException {
+    public ResponseEntity<ContaResponse> getOneConta(@PathVariable Long id) throws ContaNotFoundException {
         return  contaService.getOneConta(id);
     }
 
     @GetMapping
-    public List<ContaResponse> getAllContas(){
+    public ResponseEntity<List<ContaResponse>> getAllContas(){
         return contaService.getAllContas();
     }
 
     @PutMapping("/{id}")
-    public MessageResponseDTO updateConta(@PathVariable Long id, @RequestBody @Valid ContaDTO contaDTO) throws ContaNotFoundException {
+    public ResponseEntity<MessageResponseDTO> updateConta(@PathVariable Long id, @RequestBody @Valid ContaDTO contaDTO) throws ContaNotFoundException {
         return contaService.updateConta(id, contaDTO);
     }
 
@@ -56,7 +56,7 @@ public class ContaController {
     }
 
     @PatchMapping("/depositar/{id}")
-    public MessageResponseDTO depositar(@PathVariable Long id, @RequestBody @Valid DepositoRequest depositoRequest) throws ContaNotFoundException {
+    public ResponseEntity<MessageResponseDTO> depositar(@PathVariable Long id, @RequestBody @Valid DepositoRequest depositoRequest) throws ContaNotFoundException {
         return contaService.depositar(id, depositoRequest);
     }
 
